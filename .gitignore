@@ -1,0 +1,4 @@
+.env
+my_env
+dummy.py
+**/__pycache__/*
