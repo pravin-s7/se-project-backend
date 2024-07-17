@@ -23,7 +23,7 @@ bearer_auth = HTTPBearer(scheme_name="BearerAuth", auto_error=False)
 
 SECRET_KEY = os.environ.get('SECRET_KEY')
 ALGORITHM = os.environ.get('ALGORITHM')
-ACCESS_TOKEN_EXPIRE_MINUTES = os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES')
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 
 GOOGLE_CLIENT_ID =  os.environ.get('GOOGLE_CLIENT_ID')  
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')

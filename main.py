@@ -52,7 +52,7 @@ async def read_users_me(user: User):
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
 ):
     return current_user
 

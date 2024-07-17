@@ -25,12 +25,6 @@ class Semester(str, Enum):
     summer = "summer"
     winter = "winter"
 
-class Courses(BaseModel):
-    course_id: str
-    course_name: str
-    semester: List[Semester]
-    year: int = Field(ge=2000)
-    course_material: Optional[List[CourseMaterial]]
 
 class MaterialType(str, Enum):
     video_url = "video_URL"
@@ -60,6 +54,13 @@ class CourseMaterial(BaseModel):
     url: HttpUrl
     content: str | None = None
     week: Week
+
+class Courses(BaseModel):
+    course_id: str
+    course_name: str
+    semester: List[Semester]
+    year: int = Field(ge=2000)
+    course_material: Optional[List[CourseMaterial]]
 
 class QuestionType(str, Enum):
     MSQ = "MSQ"
