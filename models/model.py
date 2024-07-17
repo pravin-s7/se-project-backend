@@ -30,6 +30,7 @@ class Courses(BaseModel):
     course_name: str
     semester: List[Semester]
     year: int = Field(ge=2000)
+    course_material: Optional[List[CourseMaterial]]
 
 class MaterialType(str, Enum):
     video_url = "video_URL"
