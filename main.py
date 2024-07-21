@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes.user import user
+from routes.course import course
 from utils.security import auth
 from utils.response import responses
 from utils.extra import tags_metadata
@@ -32,6 +33,7 @@ app.add_middleware(
 # Adding a router
 app.include_router(user)
 app.include_router(auth)
+app.include_router(course)
 
 # Mounting Static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -52,7 +54,7 @@ async def read_users_me(user: User):
 
 @app.get("/users/me/", response_model=User)
 async def read_users_me(
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["admin"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ):
     return current_user
 

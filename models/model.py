@@ -21,11 +21,6 @@ class User(BaseModel):
             raise ValueError('Invalid email format')
         return email    
 
-class Semester(str, Enum):
-    summer = "summer"
-    winter = "winter"
-
-
 class MaterialType(str, Enum):
     video_url = "video_URL"
     file_url = "file_URL"
@@ -34,33 +29,16 @@ class MaterialType(str, Enum):
     notes = "notes"
     slides = "slides"
 
-class Week(str, Enum):
-    W1 = "W1"
-    W2 = "W2"
-    W3 = "W3"
-    W4 = "W4"
-    W5 = "W5"
-    W6 = "W6"
-    W7 = "W7"
-    W8 = "W8"
-    W9 = "W9"
-    W10 = "W10"
-    W11 = "W11"
-    W12 = "W12"
-
 class CourseMaterial(BaseModel):
-    course_id: str = Field(min_length=24, max_length=24)
+    course_id: str #like CS01
     material_type: MaterialType
     url: HttpUrl
     content: str | None = None
-    week: Week
+    week: int = Field(ge=0, le=12)
 
-class Courses(BaseModel):
+class Course(BaseModel):
     course_id: str
     course_name: str
-    semester: List[Semester]
-    year: int = Field(ge=2000)
-    course_material: Optional[List[CourseMaterial]]
 
 class QuestionType(str, Enum):
     MSQ = "MSQ"
@@ -83,7 +61,7 @@ class Assignment(BaseModel):
     answers: List[Union[int, str, float]]
     assgn_type: AssignmentType
     course_id: str = Field(min_length=24, max_length=24)
-    week: Week
+    week: int = Field(ge=0, le=12) 
     deadline: datetime = Field(..., description="Deadline in ISO format")
 
 class CodeLanguage(str, Enum):
@@ -101,7 +79,7 @@ class ProgrammingAssignment(BaseModel):
     private_tc_output: List[Union[int, str, float, tuple, dict]]
     assgn_type: AssignmentType
     course_id: str = Field(min_length=24, max_length=24)
-    week: Week
+    week: int = Field(ge=0, le=12) 
     deadline: datetime = Field(description="Deadline in ISO format")
 
 class Submission(BaseModel):
@@ -121,7 +99,6 @@ class FlashCards(BaseModel):
     title: str
     content: str
 
-
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -133,3 +110,7 @@ class TokenData(BaseModel):
 class LoginForm(BaseModel):
     email : str
     password: str
+
+class SuccessCreateResponse(BaseModel):
+    message: str
+    db_entry_id : str = Field(min_length=24, max_length=24)
