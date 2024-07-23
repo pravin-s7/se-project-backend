@@ -114,3 +114,12 @@ class LoginForm(BaseModel):
 class SuccessCreateResponse(BaseModel):
     message: str
     db_entry_id : str = Field(min_length=24, max_length=24)
+
+class CodingAssignment(BaseModel):
+    id: int
+    question: str
+    function: str
+    explanation: str
+    examples: List[dict]
+    testCases: List[dict]
+    deadline: datetime = Field(..., description="Deadline in ISO format")
