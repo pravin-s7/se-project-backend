@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes.user import user
 from routes.course import course
+from routes.course_material import course_material
 from utils.security import auth
 from utils.response import responses
 from utils.extra import tags_metadata
@@ -34,7 +35,7 @@ app.add_middleware(
 app.include_router(user)
 app.include_router(auth)
 app.include_router(course)
-
+app.include_router(course_material)
 # Mounting Static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
