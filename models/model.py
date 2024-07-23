@@ -1,25 +1,35 @@
-from pydantic import BaseModel, validate_email, field_validator, EmailStr, Field, HttpUrl
+from pydantic import (
+    BaseModel,
+    validate_email,
+    field_validator,
+    EmailStr,
+    Field,
+    HttpUrl,
+)
 from typing import List, Union, Optional
 from enum import Enum
 from datetime import datetime
+
 
 class Role(str, Enum):
     student = "student"
     admin = "admin"
     user = "user"
 
-class User(BaseModel):
-    email : EmailStr
-    name: str | None = None
-    disabled: Optional[bool] = False 
-    roles: List[Role]
-    courses: Optional[List[str]] | None = [] # validate later
 
-    @field_validator('email')
+class User(BaseModel):
+    email: EmailStr
+    name: str | None = None
+    disabled: Optional[bool] = False
+    roles: List[Role]
+    courses: Optional[List[str]] | None = []  # validate later
+
+    @field_validator("email")
     def validate_email_format(cls, email):
         if not validate_email(email):
-            raise ValueError('Invalid email format')
-        return email    
+            raise ValueError("Invalid email format")
+        return email
+
 
 class MaterialType(str, Enum):
     video_url = "video_URL"
@@ -29,16 +39,26 @@ class MaterialType(str, Enum):
     notes = "notes"
     slides = "slides"
 
+
 class CourseMaterial(BaseModel):
-    course_id: str #like CS01
+    course_id: str  # like CS01
     material_type: MaterialType
-    url: HttpUrl
+    url: Optional[HttpUrl] | None = None
     content: str | None = None
     week: int = Field(ge=0, le=12)
+
+
+class CourseMaterialUpdate(BaseModel):
+    material_type: MaterialType | None = None
+    url: Optional[HttpUrl] | None = None
+    content: str | None = None
+    week: int | None = Field(ge=0, le=12)
+
 
 class Course(BaseModel):
     course_id: str
     course_name: str
+
 
 class QuestionType(str, Enum):
     MSQ = "MSQ"
@@ -47,12 +67,14 @@ class QuestionType(str, Enum):
     String = "String"
     Float = "Float"
 
+
 class AssignmentType(str, Enum):
     AQ = "AQ"
     PA = "PA"
     GA = "GA"
     PPA = "PPA"
     GrPA = "GrPA"
+
 
 class Assignment(BaseModel):
     question: str
@@ -61,14 +83,16 @@ class Assignment(BaseModel):
     answers: List[Union[int, str, float]]
     assgn_type: AssignmentType
     course_id: str = Field(min_length=24, max_length=24)
-    week: int = Field(ge=0, le=12) 
+    week: int = Field(ge=0, le=12)
     deadline: datetime = Field(..., description="Deadline in ISO format")
+
 
 class CodeLanguage(str, Enum):
     python = "python"
     sql = "sql"
     java = "java"
     js = "js"
+
 
 class ProgrammingAssignment(BaseModel):
     question: str
@@ -79,13 +103,15 @@ class ProgrammingAssignment(BaseModel):
     private_tc_output: List[Union[int, str, float, tuple, dict]]
     assgn_type: AssignmentType
     course_id: str = Field(min_length=24, max_length=24)
-    week: int = Field(ge=0, le=12) 
+    week: int = Field(ge=0, le=12)
     deadline: datetime = Field(description="Deadline in ISO format")
+
 
 class Submission(BaseModel):
     assgn_id: str = Field(min_length=24, max_length=24)
     user_id: str = Field(min_length=24, max_length=24)
     answer: list
+
 
 class Marks(BaseModel):
     user_id: str = Field(min_length=24, max_length=24)
@@ -99,17 +125,21 @@ class FlashCards(BaseModel):
     title: str
     content: str
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class TokenData(BaseModel):
-    email: str 
+    email: str
     scopes: list[str] = []
 
+
 class LoginForm(BaseModel):
-    email : str
+    email: str
     password: str
+
 
 class SuccessCreateResponse(BaseModel):
     message: str
