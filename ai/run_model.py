@@ -12,15 +12,15 @@ Use the following pieces of context to answer the question at the end. Please fo
 2. If you find the answer, write the answer in a concise way with five sentences maximum.
 
 <|question|>
-
+    
     '''
     model_query += query + '\n <|context|>\n'
     for doc in docs:
         model_query += doc.page_content + '\n'
 
     model_query += '\n <|assistant|> \n'
-
-    res = generate(model_query)
+    
+    res = generate(model_query) # local langchain OR gemini OR collab
     
     return res
 

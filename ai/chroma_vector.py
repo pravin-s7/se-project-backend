@@ -27,7 +27,7 @@ def splitter(content):
 
 
 def vectorSearch(course_id, week_lte, query):
-    db = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
+    # db = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
     res = db.similarity_search(
         query=query,
         k=5,
