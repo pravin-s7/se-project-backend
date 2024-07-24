@@ -8,7 +8,7 @@ import base64
 
 from utils.security import get_current_active_user
 from utils.validation import AlreadyExistsError, NotExistsError
-from models.model import CodingAssignment
+from models.model import CodingAssignment, SuccessCreateResponse
 
 coding_assignment=APIRouter(prefix='/coding_assignment', tags=["Coding Assignment"])
 

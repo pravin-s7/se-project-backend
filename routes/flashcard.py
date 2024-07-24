@@ -66,7 +66,7 @@ async def create_flashcard(
 
 
 @flashcard.get("/get/course/{course_id}")
-async def get_c_flash_card(
+async def get_flash_card_course_filter(
     course_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> List[FlashCard]:
@@ -79,7 +79,7 @@ async def get_c_flash_card(
 
 
 @flashcard.get("/get/course/{course_id}/week/{week_id}")
-async def get_flash_card(
+async def get_flash_card_course_and_week_filter(
     course_id: str,
     week_id: int,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
