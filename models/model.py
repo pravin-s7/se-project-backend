@@ -119,11 +119,15 @@ class Marks(BaseModel):
     marks: int = Field(ge=0, le=100)
 
 
-class FlashCards(BaseModel):
-    user_id: str = Field(min_length=24, max_length=24)
-    course_id: str = Field(min_length=24, max_length=24)
+class FlashCard(BaseModel):
+    course_id: str # like CS01
+    week: int = Field(ge=0, le=12)
     title: str
-    content: str
+    content: str | None
+
+class FlashCardUpdate(BaseModel):
+    title: str | None
+    content: str | None
 
 
 class Token(BaseModel):
@@ -143,7 +147,10 @@ class LoginForm(BaseModel):
 
 class SuccessCreateResponse(BaseModel):
     message: str
-    db_entry_id : str = Field(min_length=24, max_length=24)
+    db_entry_id: str = Field(min_length=24, max_length=24)
+
+class SuccessDeleteResponse(BaseModel):
+    message: str
 
 class CodingAssignment(BaseModel):
     id: int

@@ -32,5 +32,5 @@ text_generation_pipeline = pipeline(
 
 llm = HuggingFacePipeline(pipeline=text_generation_pipeline)
 
-def invoke(prompt):
+def generate(prompt):
   return llm.invoke(prompt)

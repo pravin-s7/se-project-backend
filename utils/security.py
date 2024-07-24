@@ -65,9 +65,9 @@ async def get_current_user(security_scopes: SecurityScopes, token: Annotated[str
         if not token:
             raise credentials_exception
         payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        print(payload)
+        # print(payload)
         username: str = payload.get("sub")
-        print(username)
+        # print(username)
         if username is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
@@ -109,7 +109,7 @@ def oauth_callback(request: Request):
 
     # Handle the Authentication and token exchange
     id_token, user_info = exchange_code_for_id_token(code, scope)
-    print(user_info.json())
+    # print(user_info.json())
 
     # Decode the ID token to extract user information
     decoded_token = decode_jwt_token(id_token)

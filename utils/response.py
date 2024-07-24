@@ -34,7 +34,7 @@ responses = {
 }
 
 def objectEntity(item) -> dict:
-    return {key: str(item[key]) if key == '_id' else item[key] for key in item.keys()}
+    return {key: str(item[key]) for key in item.keys()} #need id to delete the resource
 
 def objectsEntity(entity) -> list:
     return [objectEntity(item) for item in entity]

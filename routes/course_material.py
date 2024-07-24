@@ -77,5 +77,7 @@ async def update_course_material(
     if course_material_input.week:
         update["week"] = course_material_input.week
 
-    updated = db.course_material.update_one({"_id": ObjectId(course_material_id)}, {'$set': update})
+    updated = db.course_material.update_one(
+        {"_id": ObjectId(course_material_id)}, {"$set": update}
+    )
     return {"message": "success", "db_entry_id": course_material_id}

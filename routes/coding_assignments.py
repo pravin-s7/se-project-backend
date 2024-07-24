@@ -4,6 +4,7 @@ from utils.response import objectEntity, objectsEntity
 
 from database.db import db
 from typing import Annotated
+import base64
 
 from utils.security import get_current_active_user
 from utils.validation import AlreadyExistsError, NotExistsError
