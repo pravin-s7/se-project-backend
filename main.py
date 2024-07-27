@@ -1,19 +1,20 @@
-from fastapi import FastAPI, Security
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from routes.user import user
 from routes.course import course
 from routes.course_material import course_material
-from routes.flashcard import flashcard
+from routes.coding_assignments import coding_assignment
+from routes.flashcard import fc
+from routes.assignment import assgn
 from utils.security import auth
 from utils.response import responses
 from utils.extra import tags_metadata
-
-
-from models.model import User
-from typing import Annotated
-from utils.security import get_current_active_user
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+from apscheduler.triggers.interval import IntervalTrigger
+import asyncio
 
 
 app = FastAPI(
@@ -37,7 +38,10 @@ app.include_router(user)
 app.include_router(auth)
 app.include_router(course)
 app.include_router(course_material)
-app.include_router(flashcard)
+app.include_router(fc)
+app.include_router(assgn)
+app.include_router(coding_assignment)
+
 # Mounting Static folder
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -51,16 +55,17 @@ async def favicon():
 async def home():
     return "Hello from Home page"
 
-@app.get("/test")
-async def read_users_me(user: User):
-    return ""
+# scheduler = AsyncIOScheduler()
 
-@app.get("/users/me/", response_model=User)
-async def read_users_me(
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
-):
-    return current_user
+# def job():
+#     print("Job executed!")
 
+# @app.on_event("startup")
+# async def startup_event():
+#     print("App Started")
+#     scheduler.add_job(job, IntervalTrigger(minutes=1))
+#     scheduler.start()
+#     return {"message": "Scheduler started!"}
 
 if __name__ == '__main__':
     import uvicorn

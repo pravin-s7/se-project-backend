@@ -1,6 +1,0 @@
-google-generativeai
-torch
-langchain-community
-langchain-huggingface
-langchain
-langchain-chroma

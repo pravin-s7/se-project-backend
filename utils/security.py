@@ -1,10 +1,12 @@
 from fastapi import HTTPException, Depends, status, Security, APIRouter, Request
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from models.model import User, Token, TokenData
+from models.model import Token, TokenData
+from models.user import User
 from fastapi.security import HTTPBearer, SecurityScopes
 from fastapi.responses import RedirectResponse
 from typing import Annotated
+import uuid 
 from pydantic import ValidationError
 import jwt
 import requests
@@ -65,9 +67,7 @@ async def get_current_user(security_scopes: SecurityScopes, token: Annotated[str
         if not token:
             raise credentials_exception
         payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        # print(payload)
         username: str = payload.get("sub")
-        # print(username)
         if username is None:
             raise credentials_exception
         token_scopes = payload.get("scopes", [])
@@ -88,20 +88,20 @@ async def get_current_user(security_scopes: SecurityScopes, token: Annotated[str
     return user
 
 async def get_current_active_user(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user : Annotated[User, Depends(get_current_user)],
 ):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
-@auth.get("/login/google")
+@auth.get("/login/google", include_in_schema=False)
 async def login_google():
     redirect_url = f"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={GOOGLE_CLIENT_ID}&redirect_uri={GOOGLE_REDIRECT_URI}&scope=openid%20profile%20email&access_type=offline"
-    return redirect_url
+    return RedirectResponse(redirect_url)
 
 
-@auth.get('/oauth/callback')
+@auth.get('/oauth/callback', include_in_schema=False)
 def oauth_callback(request: Request):
     # Extract query parameters from the request
     code = request.query_params.get('code')
@@ -162,6 +162,7 @@ def handle_authenticated_user(user_email, user_info):
 
 def create_new_user(user_info):
     db.user.insert_one({
+        "user_id": str(uuid.uuid4()),
         "name": user_info.get('name'),
         "email": user_info.get('email'),
         "roles": ["user"],
