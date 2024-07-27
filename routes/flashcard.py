@@ -6,7 +6,8 @@ from database.db import db
 from models.flashcard import FlashCard, FlashCardUpdate
 from typing import Annotated
 from utils.security import get_current_active_user
-from utils.validation import AlreadyExistsError, NotExistsError
+from utils.validation import AlreadyExistsError, NotExistsError, NotFoundError
+from ai.colab_request import search_generate_flashcard
 
 from bson import ObjectId
 
@@ -61,34 +62,34 @@ async def delete_flash_card(
     return {"msg": "FlashCard deleted successfully"}
 
 
-# @flashcard.post("/generate")
-# async def generate_flashcard(
-#     flashcard_input: FlashCard,
-#     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
-# ) -> FlashCard:
-#     find = db.flashcard.find(filter={"course_id": flashcard_input.course_id})
-#     if not find:
-#         raise NotFoundError("Could not find the course")
+@fc.post("/generate")
+async def generate_flashcard(
+    flashcard_input: FlashCard,
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+) -> FlashCard:
+    find = db.course.find(filter={"course_id": flashcard_input.course_id})
+    if not find:
+        raise NotFoundError("Could not find the course")
 
-#     _in = db.flashcard.insert_one(
-#         {
-#             "user_email_id": current_user.email,
-#             "course_id": flashcard_input.course_id,
-#             "week": flashcard_input.week,
-#             "title": flashcard_input.title,
-#             "content": search_generate_flashcard(
-#                 flashcard_input.course_id, flashcard_input.week, flashcard_input.title
-#             ),
-#         }
-#     )
+    _in = db.flashcard.insert_one(
+        {
+            "user_email_id": current_user.user_id,
+            "course_id": flashcard_input.course_id,
+            "week": flashcard_input.week,
+            "title": flashcard_input.title,
+            "content": search_generate_flashcard(
+                flashcard_input.course_id, flashcard_input.week, flashcard_input.title
+            ),
+        }
+    )
 
-#     if _in.acknowledged:
-#         find = db.flashcard.find_one(
-#             filter={"_id": ObjectId(_in.inserted_id)}
-#         )
+    if _in.acknowledged:
+        find = db.flashcard.find_one(
+            filter={"_id": ObjectId(_in.inserted_id)}
+        )
         
-#         return objectEntity(find)
-#     else:
-#         raise AlreadyExistsError()
+        return objectEntity(find)
+    else:
+        raise AlreadyExistsError()
 
     

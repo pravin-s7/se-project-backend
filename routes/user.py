@@ -3,8 +3,11 @@ from typing import Annotated, List
 from utils.security import get_current_active_user
 from models.user import User
 from models.assignment import AssignmentSubmissionForm
+from models.model import GenerateResponse
 from utils.response import objectEntity, objectsEntity
+from utils.validation import NotFoundError
 from bson import ObjectId
+from ai.colab_request import search_generate
 
 from database.db import db
 
@@ -52,7 +55,15 @@ async def get_all_flashcards(current_user: Annotated[User, Security(get_current_
     flash_cards = db.flashcard.find({"user_id": current_user.user_id}, {"title": 1, "content": 1})
     return objectsEntity(flash_cards)
 
-@user.post('/register_course', include_in_schema=False)
+@user.post('/search_generate')
+async def search_and_generate_response(query: GenerateResponse, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
+    find = db.course.find(filter={"course_id": query.course_id})
+    if not find:
+        raise NotFoundError("Could not find the course")
+    return {'response': search_generate(query.course_id, query.week, query.query)}
+
+
+@user.post('/register_course')
 async def register_courses(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     courses: List[str]

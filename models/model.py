@@ -1,4 +1,8 @@
 from pydantic import BaseModel, Field
+class GenerateResponse(BaseModel):
+    query: str
+    course_id: str
+    week: int = Field(ge=0, le=12)
 
 class Token(BaseModel):
     access_token: str
