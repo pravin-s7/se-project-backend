@@ -22,15 +22,7 @@ async def create_course_material(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> SuccessCreateResponse:
 
-    material_in = db.course_material.insert_one(
-        {
-            "course_id": course_material_input.course_id,
-            "material_type": course_material_input.material_type,
-            "url": course_material_input.url,
-            "content": course_material_input.content,
-            "week": course_material_input.week,
-        }
-    )
+    material_in = db.course_material.insert_one(dict(course_material_input))
 
     # print(course_material_input.content)
     if course_material_input.material_type == "notes":
