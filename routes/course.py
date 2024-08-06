@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Security, Depends, HTTPException, Query
 from models.user import User
-from utils.response import objectEntity, objectsEntity, convert_to_serializable
+from utils.response import objectEntity, objectsEntity, convert_to_serializable, responses
 
 from database.db import db
 from database.pipeline import get_course_pipeline, get_course_pipeline_week
@@ -15,7 +15,7 @@ from utils.validation import AlreadyExistsError, NotExistsError
 course = APIRouter(prefix="/course", tags=["Course"])
 
 
-@course.post("/create")
+@course.post("/create", status_code=201, responses=responses)
 async def create_course(
     course_input: Course,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
@@ -30,7 +30,7 @@ async def create_course(
         raise AlreadyExistsError()
 
 
-@course.get("/get/{course_id}")
+@course.get("/get/{course_id}", responses=responses)
 async def get_course(
     course_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
@@ -41,7 +41,7 @@ async def get_course(
     raise NotExistsError()
 
 
-@course.put("/update/{course_id}")
+@course.put("/update/{course_id}", status_code=202, responses=responses)
 async def update_course(
     course_id: str,
     course_input: Course,
@@ -59,7 +59,7 @@ async def update_course(
     return {"message": "success", "db_updated_id": str(updated.upserted_id)}
 
 # get all course_material by passing course_id respectice to the weeks
-@course.get("/course_material/{course_id}")
+@course.get("/course_material/{course_id}", responses=responses)
 async def get_course_materials(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     course_id: str
@@ -72,7 +72,7 @@ async def get_course_materials(
 
 
 # get all assignment by passinig course_id, assignment_type, week
-@course.get("/get_contents")
+@course.get("/get_contents", responses=responses)
 async def get_course_contents(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     course_id: str
@@ -86,10 +86,10 @@ async def get_course_contents(
     return [convert_to_serializable(result) for result in results]
 
 
-@course.get("/get_week_content")
+@course.get("/get_week_content", responses=responses)
 async def get_course_week_contents(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
-    course_id: str = Query,
+    course_id: str,
     week: int = Query(le=12, ge=1)
 ):
     course = db.course.find_one({"course_id": course_id})
@@ -100,10 +100,10 @@ async def get_course_week_contents(
     results = db.course.aggregate(pipeline)
     return [convert_to_serializable(result) for result in results]
 
-@course.get('/get_assignment')
+@course.get('/get_assignment', responses=responses)
 async def get_course_week_assignment(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
-    course_id: str = Query,
+    course_id: str,
     week: int = Query(le=12, ge=1),
     assgn_type: AssignmentType = Query(description="the type of the assignment")
 ):

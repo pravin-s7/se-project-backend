@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Security, Path
 from models.user import User
-from utils.response import objectEntity, objectsEntity
+from utils.response import objectEntity, objectsEntity, responses
 
 from database.db import db
 from models.flashcard import FlashCard, FlashCardUpdate
@@ -11,9 +11,9 @@ from ai.colab_request import search_generate_flashcard
 
 from bson import ObjectId
 
-fc = APIRouter(prefix="/flash_card", tags=["Flash Card"])
+fc = APIRouter(prefix="/flash_card", tags=["Flashcard"])
 
-@fc.post('/create')
+@fc.post('/create', status_code=201, responses=responses)
 async def create_flash_card(
     flash_card: FlashCard,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
@@ -27,7 +27,7 @@ async def create_flash_card(
     fashcard_in = db.flashcard.insert_one(dict(flash_card))
     return {"message": "success", "db_entry_id": str(fashcard_in.inserted_id)}
 
-@fc.get('/get/{card_id}')
+@fc.get('/get/{card_id}', responses=responses)
 async def get_flash_card(
     flash_card_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
@@ -37,7 +37,7 @@ async def get_flash_card(
         raise NotExistsError()
     return FlashCard(**card)
 
-@fc.put('/update/{card_id}')
+@fc.put('/update/{card_id}', status_code=202, responses=responses)
 async def update_flash_card(
     flash_card_id: str,
     flash_card : FlashCardUpdate,
@@ -50,7 +50,7 @@ async def update_flash_card(
     return {"msg": "FlashCard Updated successfully"}
 
     
-@fc.delete('/delete/{card_id}')
+@fc.delete('/delete/{card_id}', responses=responses)
 async def delete_flash_card(
     flash_card_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
@@ -62,7 +62,7 @@ async def delete_flash_card(
     return {"msg": "FlashCard deleted successfully"}
 
 
-@fc.post("/generate")
+@fc.post("/generate", responses=responses)
 async def generate_flashcard(
     flashcard_input: FlashCard,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],

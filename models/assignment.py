@@ -29,6 +29,7 @@ class Assignment(BaseModel):
     assgn_type: AssignmentType
     course_id: str
     week: int = Field(ge=0, le=12)
+    evaluated: bool | None = False
     deadline: datetime = Field(..., description="Deadline in ISO format")
 
     @field_validator('course_id')
@@ -59,6 +60,7 @@ class ProgrammingAssignment(BaseModel):
     assgn_type: AssignmentType
     course_id: str
     week: int = Field(ge=0, le=12)
+    evaluated: bool | None = False
     deadline: datetime = Field(description="Deadline in ISO format")
 
     @model_validator(mode='before')
@@ -72,8 +74,8 @@ class ProgrammingAssignment(BaseModel):
                 raise ValueError("Each test case should be a dictionary")
             elif set(tc.keys()) != {'input', 'output'}:
                 raise ValueError("Each test case should only have 'input' and 'output' keys")
-            elif not isinstance(tc['input'], list) or not isinstance(tc['output'], list):
-                raise ValueError("Both 'input' and 'output' should be lists")
+            elif not isinstance(tc['input'], str) or not isinstance(tc['output'], str):
+                raise ValueError("Both 'input' and 'output' should be str")
         return values
 
     @field_validator('course_id')
@@ -91,13 +93,13 @@ class ProgrammingAssignment(BaseModel):
 
 
 class ProgrammingAssignmentUpdate(BaseModel):
-    question: Optional[str] 
-    language: Optional[CodeLanguage]
-    public_testcase: Optional[List[dict]] 
-    private_testcase: Optional[List[dict]] 
-    assgn_type: Optional[AssignmentType] 
-    week: Optional[int] = Field(ge=0, le=12)
-    deadline: Optional[datetime] = Field(description="Deadline in ISO format")
+    question: str
+    language: CodeLanguage
+    public_testcase: List[dict]
+    private_testcase: List[dict]
+    assgn_type: AssignmentType
+    week: int = Field(ge=0, le=12)
+    deadline: datetime = Field(description="Deadline in ISO format")
 
     @model_validator(mode='before')
     def validate_testcases(cls, values):
@@ -128,6 +130,11 @@ class AssignmentSubmissionForm(BaseModel):
 
     @field_validator('assgn_id')
     def validate_assgn_id(cls, assgn_id):
+        try:
+            ObjectId(assgn_id)
+        except Exception:
+            raise ValueError("Invalid Assignment_ID format")
+        
         assgn = db.assignment.find_one({"_id": ObjectId(assgn_id)})
         coding_assgn = db.coding_assignment.find_one({"_id": ObjectId(assgn_id)})
         if (assgn is None) and (coding_assgn is None):
@@ -141,6 +148,16 @@ class AssignmentSubmissionForm(BaseModel):
             raise ValueError("Invalid User_ID")
         return user_id
 
+class CodingSubmission(BaseModel):
+    assgn_id: str
+    code: str
+
+    @field_validator('assgn_id')
+    def validate_assgn_id(cls, assgn_id):
+        assgn = db.coding_assignment.find_one({"_id": ObjectId(assgn_id)})
+        if assgn is None:
+            raise ValueError("Invalid Assignment_ID")
+        return assgn_id
 
 class Marks(BaseModel):
     user_id: str
@@ -149,8 +166,9 @@ class Marks(BaseModel):
 
     @field_validator('assgn_id')
     def validate_assgn_id(cls, assgn_id):
-        assgn = db.assignment.find_one({"assgn_id": assgn_id})
-        if assgn is None:
+        assgn = db.assignment.find_one({"_id": ObjectId(assgn_id)})
+        coding_assgn = db.coding_assignment.find_one({"_id": ObjectId(assgn_id)})
+        if (assgn is None) and (coding_assgn is None):
             raise ValueError("Invalid Assignment_ID")
         return assgn_id
     
@@ -162,10 +180,10 @@ class Marks(BaseModel):
         return user_id
 
 class AssignmentUpdate(BaseModel):
-    question: Optional[str]
-    q_type: Optional[QuestionType]
-    options: Optional[List[Union[int, str, float]]]
-    answers: Optional[List[Union[int, str, float]]]
-    assgn_type: Optional[AssignmentType]
-    week: Optional[int] = Field(ge=0, le=12)
-    deadline: Optional[datetime] = Field(description="Deadline in ISO format")
+    question: str
+    q_type: QuestionType
+    options: List[Union[int, str, float]]
+    answers: List[Union[int, str, float]]
+    assgn_type: AssignmentType
+    week: int = Field(ge=0, le=12)
+    deadline: datetime = Field(description="Deadline in ISO format")

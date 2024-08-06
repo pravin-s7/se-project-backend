@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Security
 from models.user import User
-from utils.response import objectEntity, objectsEntity
+from utils.response import objectEntity, objectsEntity, responses
 
 from database.db import db
 from typing import Annotated
@@ -15,7 +15,7 @@ course_material = APIRouter(prefix="/course_material", tags=["Course Material"])
 
 
 @course_material.post(
-    "/create",
+    "/create", status_code=201, responses=responses
 )
 async def create_course_material(
     course_material_input: CourseMaterial,
@@ -30,7 +30,7 @@ async def create_course_material(
         raise AlreadyExistsError()
 
 
-@course_material.get("/get/{course_id}")
+@course_material.get("/get/{course_id}", responses=responses)
 async def get_course_material(
     course_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
@@ -39,7 +39,7 @@ async def get_course_material(
     return objectsEntity(find)
 
 
-@course_material.put("/update/{course_material_id}")
+@course_material.put("/update/{course_material_id}", status_code=202, responses=responses)
 async def update_course_material(
     course_material_id: str,
     course_material_input: CourseMaterialUpdate,
@@ -54,7 +54,7 @@ async def update_course_material(
     )
     return {"msg": "success", "db_entry_id": course_material_id}
 
-@course_material.delete("/delete/{course_material_id}")
+@course_material.delete("/delete/{course_material_id}", responses=responses)
 async def delete_course_material(
     course_material_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],

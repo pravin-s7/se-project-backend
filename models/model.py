@@ -1,4 +1,6 @@
 from pydantic import BaseModel, Field
+
+
 class GenerateResponse(BaseModel):
     query: str
     course_id: str

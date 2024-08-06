@@ -4,7 +4,7 @@ from utils.security import get_current_active_user
 from models.user import User
 from models.assignment import AssignmentSubmissionForm
 from models.model import GenerateResponse
-from utils.response import objectEntity, objectsEntity
+from utils.response import objectEntity, objectsEntity, responses
 from utils.validation import NotFoundError
 from bson import ObjectId
 from ai.colab_request import search_generate
@@ -13,17 +13,12 @@ from database.db import db
 
 user=APIRouter(prefix='/user', tags=["User"])
 
-@user.get('/all_users')
-async def all_user():
-    users = db.user.find()
-    return objectsEntity(users)
-
-@user.get('/me')
+@user.get('/me', responses=responses)
 async def get_current_user(current_user: Annotated[User, Depends(get_current_active_user)]):
     return current_user
 
 
-@user.get("/get/course/{course_id}")
+@user.get("/get/course/{course_id}", responses=responses)
 async def get_flash_card_course_filter(
     course_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
@@ -50,7 +45,7 @@ async def get_flash_card_course_and_week_filter(
     return objectsEntity(find)
 
 
-@user.get('/flashcards')
+@user.get('/flashcards', responses=responses)
 async def get_all_flashcards(current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
     flash_cards = db.flashcard.find({"user_id": current_user.user_id}, {"title": 1, "content": 1})
     return objectsEntity(flash_cards)
@@ -63,7 +58,7 @@ async def search_and_generate_response(query: GenerateResponse, current_user: An
     return {'response': search_generate(query.course_id, query.week, query.query)}
 
 
-@user.post('/register_course')
+@user.post('/register_course', include_in_schema=False)
 async def register_courses(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     courses: List[str]
@@ -85,7 +80,7 @@ async def register_courses(
 
 # Submitting the assignment answers by users
 
-@user.post('/submit_answer')
+@user.post('/submit_answer', responses=responses)
 async def submit_answers(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     submissions: List[AssignmentSubmissionForm]
@@ -106,6 +101,14 @@ async def submit_answers(
     raise HTTPException(status_code=500, detail="An error occurred while submitting the answers.")
    
 
+@user.get('/get_marks', responses=responses)
+async def submit_answers(
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    course_id: str
+):
+    # Returuns the mark week_wise
+    return ""
+
+
 # Evaluate the assignment and store the marks consecutively for each week and assignment type
 # As a background task with crontab
-

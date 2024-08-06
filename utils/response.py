@@ -3,9 +3,6 @@ from bson import ObjectId
 from datetime import datetime
 
 responses = {
-    200: {
-        "description": "Successful Response"
-    }, 
     404: {
         "description": "Not Found Error", 
         "content": {
@@ -20,10 +17,7 @@ responses = {
         }
     },
     500: {
-        "description": "Internal Server Error", 
-        "content": {
-            "Failed to create an user"
-        }
+        "description": "Internal Server Error"
     },
     422: {
         "description": "Validation Error", 
