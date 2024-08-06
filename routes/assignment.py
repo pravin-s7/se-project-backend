@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Security, HTTPException
 from models.user import User
-from utils.response import objectEntity, objectsEntity
+from utils.response import objectEntity, objectsEntity, responses
 from bson import ObjectId
 from database.db import db
 from typing import Annotated, List
@@ -11,7 +11,7 @@ from utils.validation import AlreadyExistsError, NotExistsError
 
 assgn = APIRouter(prefix="/assignment", tags=["Assignment"])
 
-@assgn.post('/create')
+@assgn.post('/create', status_code=201, responses=responses)
 async def create_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assignment: Assignment
@@ -21,7 +21,7 @@ async def create_question(
         return {"message": "success", "db_entry_id": str(assignment_in.inserted_id)}
     raise AlreadyExistsError()
 
-@assgn.post('/create_many_questions')
+@assgn.post('/create_many_questions', status_code=201, responses=responses)
 async def create_many_questions(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assignments: List[Assignment]
@@ -34,7 +34,7 @@ async def create_many_questions(
         return {"message": "success", "db_entry_ids": [str(id) for id in result.inserted_ids]}
     raise HTTPException(status_code=500, detail="An error occurred while inserting the assignments.")
 
-@assgn.get('/get/{assgn_id}')
+@assgn.get('/get/{assgn_id}', responses=responses)
 async def get_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assgn_id: str
@@ -44,7 +44,7 @@ async def get_question(
         raise NotExistsError()
     return objectEntity(assgn)
 
-@assgn.put('/update/{assgn_id}')
+@assgn.put('/update/{assgn_id}', status_code=202, responses=responses)
 async def update_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assgn_id: str,
@@ -55,7 +55,7 @@ async def update_question(
         raise NotExistsError()
     return {"msg": "Assigment Updated"}
 
-@assgn.delete('/delete/{assgn_id}')
+@assgn.delete('/delete/{assgn_id}', responses=responses)
 async def delete_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assgn_id: str
