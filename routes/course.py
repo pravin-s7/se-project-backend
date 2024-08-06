@@ -49,14 +49,13 @@ async def update_course(
 ):
     find = db.course.find_one(filter={"course_id": course_id})
     if not find:
-        return NotExistsError()
+        raise NotExistsError()
 
     update = {}
     if course_input.course_name:
         update["course_name"] = course_input.course_name
 
     updated = db.course.update_one({"course_id": course_id}, {"$set": update})
-    print(updated)
     return {"message": "success", "db_updated_id": str(updated.upserted_id)}
 
 # get all course_material by passing course_id respectice to the weeks
@@ -67,7 +66,7 @@ async def get_course_materials(
 ):
     find = db.course.find_one(filter={"course_id": course_id})
     if not find:
-        return NotExistsError()
+        raise NotExistsError()
     c_materials = db.course_material.find({"course_id": course_id})
     return objectsEntity(c_materials)
 
@@ -80,7 +79,7 @@ async def get_course_contents(
 ):
     find = db.course.find_one(filter={"course_id": course_id})
     if not find:
-        return NotExistsError()
+        raise NotExistsError()
     
     pipeline = get_course_pipeline(course_id=course_id)
     results = db.course.aggregate(pipeline)
