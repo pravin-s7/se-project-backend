@@ -1,6 +1,6 @@
 import requests
 
-url = "https://db91-34-168-124-186.ngrok-free.app/" 
+url = "https://b876-34-16-218-145.ngrok-free.app/" 
 
 def search_generate(course_id, week, query):
     r = requests.post(

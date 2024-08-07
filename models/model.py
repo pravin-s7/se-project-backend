@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+class Query(BaseModel):
+    query: str
 
 class GenerateResponse(BaseModel):
     query: str

@@ -3,11 +3,11 @@ from typing import Annotated, List
 from utils.security import get_current_active_user
 from models.user import User
 from models.assignment import AssignmentSubmissionForm
-from models.model import GenerateResponse
+from models.model import GenerateResponse, Query
 from utils.response import objectEntity, objectsEntity, responses
 from utils.validation import NotFoundError
 from bson import ObjectId
-from ai.colab_request import search_generate
+from ai.colab_request import search_generate, generate
 
 from database.db import db
 
@@ -57,6 +57,9 @@ async def search_and_generate_response(query: GenerateResponse, current_user: An
         raise NotFoundError("Could not find the course")
     return {'response': search_generate(query.course_id, query.week, query.query)}
 
+@user.post('/generate')
+async def generate_response(query: Query, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
+    return {'response': generate(query.query)}
 
 @user.post('/register_course', include_in_schema=False)
 async def register_courses(
