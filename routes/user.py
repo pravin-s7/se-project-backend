@@ -23,6 +23,10 @@ async def get_flash_card_course_filter(
     course_id: str,
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ):
+    find = db.course.find_one(filter={"course_id": course_id})
+    if not find:
+        raise NotFoundError("Could not find the course")
+    
     f_cards = db.flashcard.find(
         filter={"course_id": course_id, "user_id": current_user.user_id}
     )

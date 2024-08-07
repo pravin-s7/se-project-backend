@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Security
+from fastapi import APIRouter, Security, HTTPException
 from models.user import User
 from models.assignment import CodingSubmission
 from utils.response import objectEntity, objectsEntity, responses
@@ -23,16 +23,25 @@ async def create_programming_question(
         return {"msg": "success", "db_entry_id": str(assignment_in.inserted_id)}
     raise AlreadyExistsError()
     
-@coding_assignment.get('/get/{assignment_id}', responses=responses)
-async def get_coding_assignment(assignment_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
-    find = db.coding_assignment.find_one(filter={'_id': ObjectId(assignment_id)})
+@coding_assignment.get('/get/{assgn_id}', responses=responses)
+async def get_coding_assignment(assgn_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
+    
+    find = db.coding_assignment.find_one(filter={'_id': ObjectId(assgn_id)})
     if find:
         return objectEntity(find)
     raise NotExistsError()
 
-@coding_assignment.delete('/delete/{assignment_id}', responses=responses)
-async def delete_coding_assignment(assignment_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
-    find = db.coding_assignment.find_one_and_delete(filter={'_id': ObjectId(assignment_id)})
+@coding_assignment.delete('/delete/{assgn_id}', responses=responses)
+async def delete_coding_assignment(assgn_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
+    find = db.coding_assignment.find_one_and_delete(filter={'_id': ObjectId(assgn_id)})
     if find:
         return {'msg': "Assignment Deleted"}
     raise NotExistsError()
@@ -43,6 +52,11 @@ async def update_coding_assignment(
     assgn_id: str,
     assgn: ProgrammingAssignmentUpdate
 ):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
+    
     assgn = db.coding_assignment.find_one_and_update({"_id": ObjectId(assgn_id)}, {"$set": dict(assgn)})
     if not assgn:
         raise NotExistsError()
@@ -128,6 +142,10 @@ async def run_code(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     submission: CodingSubmission
 ):
+    try: 
+        ObjectId(submission.assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
 
     assgn = db.coding_assignment.find_one({"_id": ObjectId(submission.assgn_id)})
     if not assgn:

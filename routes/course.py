@@ -18,7 +18,7 @@ course = APIRouter(prefix="/course", tags=["Course"])
 @course.post("/create", status_code=201, responses=responses)
 async def create_course(
     course_input: Course,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
 ) -> SuccessCreateResponse:
     find = db.course.find_one(filter={"course_id": course_input.course_id})
     if find:
@@ -33,7 +33,7 @@ async def create_course(
 @course.get("/get/{course_id}", responses=responses)
 async def get_course(
     course_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
 ):
     find = db.course.find_one(filter={"course_id": course_id})
     if find:

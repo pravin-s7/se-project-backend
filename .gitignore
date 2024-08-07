@@ -3,5 +3,4 @@ my_env
 dummy.py
 **/__pycache__/*
 chroma_db
-**/__init__.py/*
 .vscode

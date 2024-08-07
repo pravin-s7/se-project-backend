@@ -235,5 +235,5 @@ def test_course_update_correct(token, url, course_id):
     json_response = res.json()
 
     assert json_response
-    assert res.status_code == 200
+    assert res.status_code == 202
     assert json_response.get("message") == 'success'

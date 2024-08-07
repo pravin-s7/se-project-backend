@@ -39,6 +39,10 @@ async def get_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assgn_id: str
 ):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
     assgn = db.assignment.find_one({"_id": ObjectId(assgn_id)})
     if not assgn:
         raise NotExistsError()
@@ -50,6 +54,10 @@ async def update_question(
     assgn_id: str,
     assgn: AssignmentUpdate
 ):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
     assgn = db.assignment.find_one_and_update({"_id": ObjectId(assgn_id)}, {"$set": dict(assgn)})
     if not assgn:
         raise NotExistsError()
@@ -60,6 +68,10 @@ async def delete_question(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     assgn_id: str
 ):
+    try: 
+        ObjectId(assgn_id)
+    except:
+        raise HTTPException(status_code=422, detail="Invalid assignment id")
     assgn = db.assignment.delete_one({"_id": ObjectId(assgn_id)})
     if assgn.acknowledged:
         return {"msg": "Deleted Successfully"}

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from pydantic import BaseModel, field_validator, Field, model_validator
 from enum import Enum
 from typing import Optional, List, Union, Dict
@@ -113,7 +114,7 @@ class ProgrammingAssignmentUpdate(BaseModel):
                     raise ValueError("Each test case should be a dictionary")
                 elif set(tc.keys()) != {'input', 'output'}:
                     raise ValueError("Each test case should only have 'input' and 'output' keys")
-                elif not isinstance(tc['input'], list) or not isinstance(tc['output'], list):
+                elif not isinstance(tc['input'], str) or not isinstance(tc['output'], str):
                     raise ValueError("Both 'input' and 'output' should be lists")
         return values
     
@@ -154,10 +155,13 @@ class CodingSubmission(BaseModel):
 
     @field_validator('assgn_id')
     def validate_assgn_id(cls, assgn_id):
-        assgn = db.coding_assignment.find_one({"_id": ObjectId(assgn_id)})
-        if assgn is None:
-            raise ValueError("Invalid Assignment_ID")
-        return assgn_id
+        try:
+            assgn = db.coding_assignment.find_one({"_id": ObjectId(assgn_id)})
+            if assgn is None:
+                raise ValueError("Invalid Assignment_ID")
+            return assgn_id
+        except:
+            raise HTTPException(status_code=422, detail="Invalid Assignment_ID")
 
 class Marks(BaseModel):
     user_id: str

@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import os
 import requests
 import json
+from datetime import datetime, timezone
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -18,7 +19,7 @@ db = client[os.getenv("DATABASE")]
 
 @pytest.fixture
 def token():
-    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYzMDAwNjA3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjMxMTY5NTN9.C6vwX52ZjgD57ag4FKHzsNUY15m9t8wWoHsuaxpLuIg"
+    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYxMDAxNzk3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjMwNDY1Mjl9.DOfTs1dZ4R_E-Mc-ajxPX5wjXRUrVd2EET8I4SLytr4"
 
 
 @pytest.fixture
@@ -48,3 +49,57 @@ def ensure_course(token, url, course_id):
 
     data = {"course_id": course_id, "course_name": "Python Data Structures and Algorithms"}
     res = requests.post(path, data=json.dumps(data), headers={"Authorization": token})
+
+
+# @pytest.fixture
+# def user_id():
+#     return "your_user_id_here"
+
+@pytest.fixture
+def week_id():
+    return 1  
+
+@pytest.fixture
+def assignment_id():
+    return "66b3903725cfaedcce34af1d"
+
+@pytest.fixture
+def assignment():
+    return {
+        "question": "What is the capital of France?",
+        "q_type": "MCQ",
+        "options": ["Paris", "London", "Berlin", "Madrid"],
+        "answers": ["Paris"],
+        "assgn_type": "AQ",
+        "course_id": "CS01",
+        "week": 1,
+        "evaluated": False,
+        "deadline": datetime.now(timezone.utc).isoformat()
+    }
+
+@pytest.fixture
+def assignments():
+    return [
+        {
+            "question": "What is 2 + 2?",
+            "q_type": "MCQ",
+            "options": [3, 4, 5],
+            "answers": [4],
+            "assgn_type": "AQ",
+            "course_id": "CS01",
+            "week": 1,
+            "evaluated": False,
+            "deadline": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "question": "What is the boiling point of water?",
+            "q_type": "MCQ",
+            "options": [90, 100, 110],
+            "answers": [100],
+            "assgn_type": "AQ",
+            "course_id": "CS01",
+            "week": 2,
+            "evaluated": False,
+            "deadline": datetime.now(timezone.utc).isoformat()
+        }
+    ]
