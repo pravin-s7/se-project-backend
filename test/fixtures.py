@@ -4,6 +4,8 @@ from pymongo.server_api import ServerApi
 
 from dotenv import load_dotenv
 import os
+import requests
+import json
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -34,3 +36,15 @@ def delete_course(course_id):
     find = db.course.find_one(filter={"course_id": course_id})
     if find:
         db.course.delete_one(filter={"course_id": course_id})
+
+@pytest.fixture
+def course_id():
+    return "CS01"
+
+@pytest.fixture
+def ensure_course(token, url, course_id):
+    # Create success
+    path = url + "course/create"
+
+    data = {"course_id": course_id, "course_name": "Python Data Structures and Algorithms"}
+    res = requests.post(path, data=json.dumps(data), headers={"Authorization": token})

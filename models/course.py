@@ -1,6 +1,7 @@
 from pydantic import BaseModel, field_validator, HttpUrl, Field
 from enum import Enum
 from database.db import db
+from fastapi import HTTPException
 
 class MaterialType(str, Enum):
     video_url = "video_URL"
@@ -30,7 +31,7 @@ class CourseMaterial(BaseModel):
     def validate_course_id(cls, c_id):
         course = db.course.find_one({"course_id": c_id})
         if course is None:
-            raise ValueError("Invalid Course_ID")
+            raise HTTPException(404, "Invalid Course_ID")
         return c_id
 
             
