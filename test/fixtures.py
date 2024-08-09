@@ -19,7 +19,7 @@ db = client[os.getenv("DATABASE")]
 
 @pytest.fixture
 def token():
-    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYxMDAxNzk3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjMwNDY1Mjl9.DOfTs1dZ4R_E-Mc-ajxPX5wjXRUrVd2EET8I4SLytr4"
+    return "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYzMDAwNjA3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjMzODk0NDJ9.tK3Htj_yvf_0Ib-ozr63ZHLyQpoHDSvaGWKRXxfmH4s"
 
 
 @pytest.fixture
