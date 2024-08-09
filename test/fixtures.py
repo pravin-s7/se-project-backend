@@ -61,7 +61,7 @@ def week_id():
 
 @pytest.fixture
 def assignment_id():
-    return "66b3903725cfaedcce34af1d"
+    return "66b38fed20e37bd392d5c379"
 
 @pytest.fixture
 def assignment():

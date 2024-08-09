@@ -6,7 +6,7 @@ from fixtures import token
 
 BASE_URL = "http://localhost:8000"
 
-ASSIGNMENT_ID = "66b3986f324a728e12a09cd9"
+ASSIGNMENT_ID = "66a789366a6dc45d5c1ffffa"
 
 def test_create_programming_question(token):
     path = BASE_URL + "/coding_assignment/create_programming_question"
