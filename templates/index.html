@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ace Editor Integration</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-..." crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+
+        .editor-toolbar {
+            background: #333;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .editor-toolbar select,
+        .editor-toolbar button {
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid #444;
+            background: #444;
+            color: white;
+            border-radius: 3px;
+            padding: 8px 12px;
+            width: auto;
+            cursor: pointer;
+        }
+
+        .editor-toolbar select {
+            background: #fff;
+            color: #333;
+            width: 250px;
+        }
+
+        .editor-toolbar button {
+            background: #444;
+        }
+
+        .editor-toolbar select:focus,
+        .editor-toolbar button:focus {
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .editor {
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .fullscreen .editor {
+            height: 100vh;
+        }
+
+        .toolbar-expand {
+            margin-left: auto;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .result-table th, .result-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            vertical-align: top;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-table th {
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        .result-table th:nth-child(1), .result-table td:nth-child(1) {
+            width: 25%;
+        }
+
+        .result-table th:nth-child(2), .result-table td:nth-child(2) {
+            width: 30%;
+        }
+
+        .result-table th:nth-child(3), .result-table td:nth-child(3) {
+            width: 45%;
+        }
+
+        .no-testcases {
+            text-align: center;
+            font-style: italic;
+            color: #777;
+        }
+
+        .editor-container {
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            margin-top: 10px;
+        }
+
+        .fullscreen-button {
+            margin-left: auto;
+        }
+
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .editor-toolbar select,
+        .editor-toolbar button {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .editor-toolbar button {
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="editor-toolbar">
+            <select id="mode-selector" class="form-control" onchange="changeMode()">
+                <option value="python">Python</option>
+                <option value="javascript">JavaScript</option>
+                <option value="java">Java</option>
+                <option value="sql">SQL</option>
+            </select>
+            
+            <select id="theme-selector" class="form-control" onchange="changeTheme()">
+                <option value="monokai">Monokai</option>
+                <option value="github">GitHub</option>
+                <option value="twilight">Twilight</option>
+                <option value="solarized_dark">Solarized Dark</option>
+                <option value="solarized_light">Solarized Light</option>
+                <option value="textmate">TextMate</option>
+                <option value="dracula">Dracula</option>
+                <option value="xcode">Xcode</option>
+                <option value="terminal">Terminal</option>
+                <option value="kuroir">Kuroir</option>
+                <option value="chaos">Chaos</option>
+                <option value="clouds">Clouds</option>
+                <option value="clouds_midnight">Clouds Midnight</option>
+                <option value="cobalt">Cobalt</option>
+                <option value="crimson_editor">Crimson Editor</option>
+                <option value="dawn">Dawn</option>
+                <option value="dreamweaver">Dreamweaver</option>
+                <option value="eclipse">Eclipse</option>
+                <option value="gob">Gob</option>
+                <option value="gruvbox">Gruvbox</option>
+                <option value="idle_fingers">Idle Fingers</option>
+                <option value="katzenmilch">Katzenmilch</option>
+                <option value="kuroir">Kuroir</option>
+                <option value="kuroir">Kuroir</option>
+                <option value="kr_theme">Kr Theme</option>
+                <option value="monokai">Monokai</option>
+                <option value="pastel_on_dark">Pastel On Dark</option>
+                <option value="solarized_dark">Solarized Dark</option>
+                <option value="solarized_light">Solarized Light</option>
+                <option value="textmate">TextMate</option>
+                <option value="tomorrow">Tomorrow</option>
+                <option value="tomorrow_night">Tomorrow Night</option>
+                <option value="tomorrow_night_blue">Tomorrow Night Blue</option>
+                <option value="tomorrow_night_bright">Tomorrow Night Bright</option>
+                <option value="tomorrow_night_eighties">Tomorrow Night 80s</option>
+                <option value="twilight">Twilight</option>
+                <option value="vibrant_ink">Vibrant Ink</option>
+                <option value="xcode">Xcode</option>
+            </select>
+            
+            <button title="Increase Font Size" class="incr-font" style="width: 30px;">+</button>
+            <button title="Decrease Font Size" class="decr-font" style="width: 30px;">-</button>
+            <button title="Cut selection" class="cut-text">Cut</button>
+            <button title="Copy selection" class="copy-text">Copy</button>
+            <button title="Paste" class="paste-text">Paste</button>
+            <button title="Paste" class="undo">Undo</button>
+            <button title="Paste" class="redo">Redo</button>
+            <button title="Toggle Full Screen" class="expand toolbar-expand">Expand</button>
+        </div>
+        
+        <div id="editor-container" class="editor-container">
+            <div id="editor" class="editor"></div>
+        </div>
+        
+        <button class="btn btn-primary" onclick="sendCode()">Submit Code</button>
+        
+        <div id="result-container" class="mt-5">
+            <h2>Results</h2>
+
+            <div id="public-testcases">
+                <h3>Public Test Cases</h3>
+                <div id="public-testcase-summary" class="mb-3"></div>
+                <table id="public-testcase-table" class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Input</th>
+                            <th>Expected Output</th>
+                            <th>Actual Output</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            
+            <div id="private-testcases" class="mt-4">
+                <h3>Private Test Cases</h3>
+                <div id="private-testcase-summary" class="mb-3"></div>
+                <table id="private-testcase-table" class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Input</th>
+                            <th>Expected Output</th>
+                            <th>Actual Output</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('editor').style.fontSize='16px';
+        // Initialize Ace Editor
+        var editor = ace.edit("editor");
+        var Range = ace.require("ace/range").Range;
+        editor.setTheme("ace/theme/monokai");
+        editor.session.setMode("ace/mode/python");
+        editor.renderer.setShowPrintMargin(false);
+        
+        editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
+
+        editor.session.setUseWrapMode(true);
+
+        var preBuiltCode = ``;
+
+        editor.setValue(preBuiltCode);
+        
+        // Hide lines of code (folding)
+        editor.session.addFold("", new Range(1, 0, 5, 0))
+        editor.gotoLine(1);
+
+        function changeMode() {
+            var mode = document.getElementById("mode-selector").value;
+            editor.session.setMode("ace/mode/" + mode);
+        }
+
+        function changeTheme() {
+            var theme = document.getElementById("theme-selector").value;
+            editor.setTheme("ace/theme/" + theme);
+        }
+
+        // Disabling the shortcut keys
+        editor.commands.addCommand({
+            name: "breakTheEditor", 
+            bindKey: "ctrl-,|ctrl-z|ctrl-y", 
+            exec: function() {} 
+        });
+
+        // Disabling the Drag option
+        ![
+            "dragenter", "dragover", "dragend", "dragstart", "dragleave", "drop"
+        ].forEach(function(eventName) {
+            editor.container.addEventListener(eventName, function(e) {
+                e.stopPropagation()
+            }, true)
+        });
+        editor.setOption("dragEnabled", false)
+
+        function sendCode() {
+            fetch('/coding_assignment/run', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYxMDAxNzk3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjM4MjgwMzJ9.vQwaTzAgiTfw6vpeA70xO2zMVASoOeG-_r0bgMztgLI'
+                },
+                body: JSON.stringify({
+                    assgn_id: "66b399744d92ad99114660f9",
+                    code: editor.getValue()
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Throw an error to be caught in the catch block
+                    alert("Unauthorized User");
+                    throw new Error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); // For debugging
+                displayResult(data);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function displayResult(data) {
+            const publicTestcaseTable = document.getElementById('public-testcase-table').getElementsByTagName('tbody')[0];
+            const privateTestcaseTable = document.getElementById('private-testcase-table').getElementsByTagName('tbody')[0];
+
+            // Clear previous results
+            publicTestcaseTable.innerHTML = '';
+            privateTestcaseTable.innerHTML = '';
+
+            function formatMultilineText(text) {
+                if (!text) return '';
+                // Convert tabs and newlines to HTML entities and line breaks
+                return text.replace(/\t/g, '&#9;').replace(/\n/g, '<br>');
+            }
+
+            // Display Public Test Cases
+            if (data.passed_public_count) {
+                document.getElementById('public-testcase-summary').textContent = `Public Test Cases Passed: ${data.passed_public_count}`;
+                data.public_testcases.forEach(testcase => {
+                    const row = publicTestcaseTable.insertRow();
+                    row.insertCell(0).innerHTML = formatMultilineText(testcase.input);
+                    row.insertCell(1).innerHTML = formatMultilineText(testcase.expected_output);
+                    row.insertCell(2).innerHTML = formatMultilineText(testcase.error && testcase.status === 'Fail' ? testcase.error : testcase.output);
+                });
+            } else {
+                document.getElementById('public-testcase-summary').textContent = 'No public test cases available.';
+            }
+
+            // Display Private Test Cases
+            if (data.passed_private_count) {
+                document.getElementById('private-testcase-summary').textContent = `Private Test Cases Passed: ${data.passed_private_count}`;
+                data.private_testcases.forEach(testcase => {
+                    const row = privateTestcaseTable.insertRow();
+                    row.insertCell(0).innerHTML = formatMultilineText(testcase.input);
+                    row.insertCell(1).innerHTML = formatMultilineText(testcase.expected_output);
+                    row.insertCell(2).innerHTML = formatMultilineText(testcase.error && testcase.status === 'Fail' ? testcase.error : testcase.output);
+                });
+            } else {
+                document.getElementById('private-testcase-summary').textContent = 'No private test cases available.';
+            }
+        }
+
+        const incrFontButton = document.querySelector('.incr-font');
+        const decrFontButton = document.querySelector('.decr-font');
+        const cutTextButton = document.querySelector('.cut-text');
+        const copyTextButton = document.querySelector('.copy-text');
+        const pasteTextButton = document.querySelector('.paste-text');
+        const undoButton = document.querySelector('.undo');
+        const redoButton = document.querySelector('.redo');
+        const expandButton = document.querySelector('.expand');
+
+        let fontSize = 16;
+
+        // Increase font size
+        incrFontButton.addEventListener('click', () => {
+            fontSize += 2;
+            editor.container.style.fontSize = `${fontSize}px`;
+        });
+
+        // Decrease font size
+        decrFontButton.addEventListener('click', () => {
+            if (fontSize > 8) {
+                fontSize -= 2;
+                editor.container.style.fontSize = `${fontSize}px`;
+            }
+        });
+
+        // Cut text
+        cutTextButton.addEventListener('click', () => {
+            console.log("Cut button clicked");
+            editor.execCommand('cut');
+        });
+
+        // Copy text
+        copyTextButton.addEventListener('click', () => {
+            console.log("Copy button clicked");
+            editor.execCommand('copy');
+        });
+
+        // Paste text
+        pasteTextButton.addEventListener('click', () => {
+            editor.execCommand('paste', editor.getCopyText());
+        });
+
+        // Undo text
+        undoButton.addEventListener('click', () => {
+            editor.execCommand('undo');
+        });
+
+        // Redo text
+        redoButton.addEventListener('click', () => {
+            editor.execCommand('redo');
+        });
+
+        // Toggle fullscreen
+        expandButton.addEventListener('click', () => {
+            document.body.classList.toggle('fullscreen');
+        });
+    </script>
+</body>
+</html>

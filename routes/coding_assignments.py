@@ -119,6 +119,8 @@ def run_test_cases(code: str, test_cases: List[Dict[str, str]], language: str) -
 
         result_dict = {
             "error": "",
+            "input": input_data,
+            "expected_output": expected_output,
             "output": result.stdout.strip(),
             "status": ""
         }

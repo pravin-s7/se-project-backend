@@ -47,4 +47,4 @@ def convert_to_serializable(item: Any) -> Any:
         return item
 
 def objectsEntity(entity) -> list:
-    return [objectEntity(item) for item in entity]
+    return [convert_to_serializable(item) for item in entity]
