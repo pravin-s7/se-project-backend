@@ -29,18 +29,34 @@ async def create_flash_card(
     return {"message": "success", "db_entry_id": str(fashcard_in.inserted_id)}
 
 
-@fc.get("/get/{flash_card_id}", responses=responses)
-async def get_flash_card(
-    flash_card_id: str,
-    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
-) -> FlashCard:
+# @fc.get("/get/{flash_card_id}", responses=responses)
+@fc.get("/getall", responses=responses)
+async def get_flash_cards(
+    # flash_card_id: str,
+    # current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+)   :
     try:
-        card = db.flashcard.find_one({"_id": ObjectId(flash_card_id)})
-    except:
-        raise HTTPException(422, "Invalid ID")
-    if card is None:
-        raise NotExistsError()
-    return FlashCard(**card)
+        flashcards = db.flashcard.find()
+        
+        # Convert cursor to a list and convert ObjectId to string
+        flashcards_list = []
+        for card in flashcards:
+            card['_id'] = str(card['_id'])  # Convert ObjectId to string
+            flashcards_list.append(card)
+        
+        # If no flashcards found, raise an error
+        if not flashcards_list:
+            raise NotExistsError()
+
+        # Return the list of flashcards
+        return flashcards_list
+    except Exception as e:
+        raise HTTPException(500, str(e))
+    # except:
+    #     raise HTTPException(422, "Invalid ID")
+    # if card is None:
+    #     raise NotExistsError()
+    # return FlashCard(**card)
 
 
 @fc.put("/update/{flash_card_id}", status_code=202, responses=responses)

@@ -10,13 +10,13 @@ class FlashCard(BaseModel):
     title: str
     content: str | None
 
-    @model_validator(mode='before')
-    def validate_user_and_course(cls, values):
-        course_id = values.get('course_id')
-        course = db.course.find_one({"course_id": course_id})
-        if course is None:
-            raise ValueError("Invalid Course_ID")
-        return values
+    # @model_validator(mode='before')
+    # def validate_user_and_course(cls, values):
+    #     course_id = values.get('course_id')
+    #     course = db.course.find_one({"course_id": course_id})
+    #     if course is None:
+    #         raise ValueError("Invalid Course_ID")
+    #     return values
 
 
 class FlashCardUpdate(BaseModel):
