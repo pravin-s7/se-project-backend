@@ -191,3 +191,16 @@ class AssignmentUpdate(BaseModel):
     assgn_type: AssignmentType
     week: int = Field(ge=0, le=12)
     deadline: datetime = Field(description="Deadline in ISO format")
+
+
+class LastSubmission(BaseModel):
+    course_id: str
+    week: int = Field(ge=1, le=12)
+    assgn_type: AssignmentType
+
+    @field_validator('course_id')
+    def validate_course_id(cls, c_id):
+        course = db.course.find_one({"course_id": c_id})
+        if course is None:
+            raise ValueError("Invalid Course_ID")
+        return c_id

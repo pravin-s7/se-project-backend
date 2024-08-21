@@ -1,0 +1,17 @@
+/* codemirror.css */
+
+/* This is the default CodeMirror theme. Adjust or add additional themes as needed. */
+.CodeMirror {
+    border: 1px solid #ddd;
+    height: auto;
+    font-size: 14px;
+}
+  
+.CodeMirror-lines {
+    padding: 0;
+}
+  
+.CodeMirror-gutters {
+    border-right: 1px solid #ddd;
+}
+  

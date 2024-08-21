@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.14/ace.min.js"></script>
+</head>
+<body>
+    <div id="default-editor" style="height: 200px; width: 100%;"></div>
+    <div id="user-editor" style="height: 200px; width: 100%;"></div>
+    <button onclick="sendToBackend()">Submit</button>
+
+    <script>
+        // Initialize the default code editor
+        var defaultEditor = ace.edit("default-editor");
+        defaultEditor.setTheme("ace/theme/github");
+        defaultEditor.session.setMode("ace/mode/javascript");
+        defaultEditor.setReadOnly(true); // Make this editor read-only
+
+        // Initialize the user code editor
+        var userEditor = ace.edit("user-editor");
+        userEditor.setTheme("ace/theme/github");
+        userEditor.session.setMode("ace/mode/javascript");
+
+        // Set some default code in the default editor
+        defaultEditor.setValue(`// Default code\nfunction defaultFunction() {\n    console.log("This is default code.");\n}\n`, -1);
+
+        // Function to get both code snippets and send to backend
+        function sendToBackend() {
+            var defaultCode = defaultEditor.getValue();
+            var userCode = userEditor.getValue();
+            // Combine the codes as needed, here we're just concatenating them
+            var combinedCode = `Default Code:\n${defaultCode}\n\nUser Code:\n${userCode}`;
+            
+            // Example of sending the data to a backend (use fetch or XMLHttpRequest)
+            fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code: combinedCode }),
+            })
+            .then(response => response.json())
+            .then(data => console.log('Success:', data))
+            .catch((error) => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

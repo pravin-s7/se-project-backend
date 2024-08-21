@@ -1,6 +1,8 @@
 .env
 my_env
-dummy.py
+dummy*
 **/__pycache__/*
 chroma_db
 .vscode
+.devcontainer
+.pytest_cache

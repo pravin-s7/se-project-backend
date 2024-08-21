@@ -68,6 +68,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 GOOGLE_CLIENT_ID = google_client_id
 GOOGLE_CLIENT_SECRET = google_client_secret
 GOOGLE_REDIRECT_URI = "http://localhost:8000/oauth/callback"
+GOOGLE_AI_KEY = "google_ai_key" # gemini-model api-key
 ```
 
 > ```If you want to use the local database, replace the uri with "mongodb://localhost:27017" in db.py which is located in database folder```
@@ -78,14 +79,15 @@ GOOGLE_REDIRECT_URI = "http://localhost:8000/oauth/callback"
 
 - For Backend
 
-```python
+```python3
 python3 main.py
 ```
 
 - For Frontend
 
 ```js
-npm run dev
+npm install
+npm start
 ```
 
 ### 2. Access the app

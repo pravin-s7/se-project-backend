@@ -1,4 +1,5 @@
 from pydantic import BaseModel, field_validator, HttpUrl, Field
+from typing import Optional
 from enum import Enum
 from database.db import db
 from fastapi import HTTPException
@@ -40,6 +41,41 @@ class CourseMaterialUpdate(BaseModel):
     url: str | None 
     content: str | None 
     week: int = Field(ge=0, le=12)
+
+    @field_validator('url')
+    def validate_url_format(cls, url):
+        try:
+            HttpUrl(url)
+        except:
+            raise ValueError("Invalid URL")
+        return url
+
+
+class Notes(BaseModel):
+    course_id: str
+    title: str
+    content: str
+    url: str = None
+
+    @field_validator('url')
+    def validate_url_format(cls, url):
+        try:
+            HttpUrl(url)
+        except:
+            raise ValueError("Invalid URL")
+        return url
+    
+    @field_validator('course_id')
+    def validate_course_id(cls, c_id):
+        course = db.course.find_one({"course_id": c_id})
+        if course is None:
+            raise HTTPException(404, "Invalid Course_ID")
+        return c_id
+    
+class NotesUpdate(BaseModel):
+    title: str
+    content: str
+    url: str = None
 
     @field_validator('url')
     def validate_url_format(cls, url):

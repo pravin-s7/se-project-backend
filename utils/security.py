@@ -30,6 +30,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
 GOOGLE_CLIENT_ID =  os.environ.get('GOOGLE_CLIENT_ID')  
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
 GOOGLE_REDIRECT_URI =  os.environ.get('GOOGLE_REDIRECT_URI')
+FRONTEND_URL = os.environ.get('FRONTEND_URL')
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -121,8 +122,10 @@ def oauth_callback(request: Request):
     
     # Validate and process user authentication
     if email_verified:
-        access_token = handle_authenticated_user(user_email, user_info.json())
-        return Token(access_token=access_token, token_type="bearer")
+        access_token, user_type = handle_authenticated_user(user_email, user_info.json())
+        print(access_token, user_type)
+        redirect_url = f"{FRONTEND_URL}/login/{access_token}/type/{user_type}"
+        return RedirectResponse(redirect_url)
     else:
         raise HTTPException(status_code=401, detail="User not verified")
 
@@ -158,7 +161,7 @@ def handle_authenticated_user(user_email, user_info):
         data={"sub": user.email, "scopes": user.roles},
         expires_delta=access_token_expires
     )
-    return access_token
+    return access_token, 'instructor' if 'admin' in user.roles else 'student'
 
 def create_new_user(user_info):
     db.user.insert_one({

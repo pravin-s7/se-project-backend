@@ -10,6 +10,7 @@ from bson import ObjectId
 from utils.security import get_current_active_user
 from utils.validation import AlreadyExistsError, NotExistsError
 from models.assignment import ProgrammingAssignment, ProgrammingAssignmentUpdate
+import base64
 
 coding_assignment=APIRouter(prefix='/coding_assignment', tags=["Coding Assignment"])
 
@@ -25,15 +26,16 @@ async def create_programming_question(
     
 @coding_assignment.get('/get/{assgn_id}', responses=responses)
 async def get_coding_assignment(assgn_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
-    try: 
-        ObjectId(assgn_id)
-    except:
-        raise HTTPException(status_code=422, detail="Invalid assignment id")
-    
-    find = db.coding_assignment.find_one(filter={'_id': ObjectId(assgn_id)})
-    if find:
-        return objectEntity(find)
-    raise NotExistsError()
+    try:
+        find = db.coding_assignment.find_one({'_id': ObjectId(assgn_id)})
+        if find:
+            return objectEntity(find)  # Convert the MongoDB document to JSON serializable format
+        else:
+            raise NotExistsError()
+    except NotExistsError:
+        raise HTTPException(status_code=404, detail="Assignment not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @coding_assignment.delete('/delete/{assgn_id}', responses=responses)
 async def delete_coding_assignment(assgn_id: str, current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]):
@@ -72,7 +74,7 @@ def run_test_cases(code: str, test_cases: List[Dict[str, str]], language: str) -
 
         if language == 'python':
             result = subprocess.run(
-                ["python3", "-c", code],
+                ["python", "-c", code],
                 input=input_data,
                 capture_output=True,
                 text=True
@@ -148,21 +150,28 @@ async def run_code(
         ObjectId(submission.assgn_id)
     except:
         raise HTTPException(status_code=422, detail="Invalid assignment id")
-
-    assgn = db.coding_assignment.find_one({"_id": ObjectId(submission.assgn_id)})
-    if not assgn:
-        raise NotExistsError()
     
-    public_testcases = assgn.get('public_testcase', [])
-    private_testcases = assgn.get('private_testcase', [])
-    # Run the test cases and get results and passed counts
-    public_results, passed_public_count = run_test_cases(submission.code, public_testcases, assgn['language'])
-    private_results, passed_private_count = run_test_cases(submission.code, private_testcases, assgn['language'])
+    try:
+        assgn = db.coding_assignment.find_one({"_id": ObjectId(submission.assgn_id)})
+        if not assgn:
+            raise NotExistsError()
+        
+        decoded_code = base64.b64decode(submission.code).decode('utf-8')
+        public_testcases = assgn.get('public_testcase', [])
+        private_testcases = assgn.get('private_testcase', [])
+        # Run the test cases and get results and passed counts
+        public_results, passed_public_count = run_test_cases(decoded_code, public_testcases, assgn['language'])
+        private_results, passed_private_count = run_test_cases(decoded_code, private_testcases, assgn['language'])
 
-    # Return results
-    return {
-        "public_testcases": public_results,
-        "private_testcases": private_results,
-        "passed_public_count": f"{passed_public_count}/{len(public_testcases)}",
-        "passed_private_count": f"{passed_private_count}/{len(private_testcases)}"
-    }
+        mark = int(round(passed_private_count/len(private_testcases)*100,2))
+
+        # Return results
+        return {
+            "public_testcases": public_results,
+            "private_testcases": private_results,
+            "passed_public_count": f"{passed_public_count}/{len(public_testcases)}",
+            "passed_private_count": f"{passed_private_count}/{len(private_testcases)}",
+            "mark": mark
+        }
+    except Exception as e:
+        return {"error": str(e)}

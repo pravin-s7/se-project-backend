@@ -29,21 +29,20 @@ async def create_course(
     else:
         raise AlreadyExistsError()
 
+@course.get("/getall", responses=responses)
+async def get_courses():
+    courses = db.course.find()
+    return objectsEntity(courses)
 
 @course.get("/get/{course_id}", responses=responses)
 async def get_course(
     course_id: str,
-    # current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])]
 ):
     find = db.course.find_one(filter={"course_id": course_id})
     if find:
         return objectEntity(find)
     raise NotExistsError()
-
-@course.get("/getall", responses=responses)
-async def get_courses():
-    courses = db.course.find()
-    return objectsEntity(courses)
 
 
 @course.put("/update/{course_id}", status_code=202, responses=responses)
@@ -66,7 +65,7 @@ async def update_course(
 # get all course_material by passing course_id respectice to the weeks
 @course.get("/course_material/{course_id}", responses=responses)
 async def get_course_materials(
-    # current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     course_id: str
 ):
     find = db.course.find_one(filter={"course_id": course_id})
@@ -107,7 +106,7 @@ async def get_course_week_contents(
 
 @course.get('/get_assignment', responses=responses)
 async def get_course_week_assignment(
-    # current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
     course_id: str,
     week: int = Query(le=12, ge=1),
     assgn_type: AssignmentType = Query(description="the type of the assignment")
@@ -115,8 +114,25 @@ async def get_course_week_assignment(
     course = db.course.find_one({"course_id": course_id})
     if not course:
         raise NotExistsError()
-    collection = db.assignment if assgn_type in ["AQ", "PA", "GrPA"] else db.coding_assignment
+    collection = db.assignment if assgn_type in ["AQ", "PA", "GA"] else db.coding_assignment
 
     results = collection.find({"course_id": course_id, "week": week, "assgn_type": assgn_type})
 
     return [convert_to_serializable(result) for result in results]
+
+@course.get('/get_all_assignment', responses=responses)
+async def get_course_week_assignment(
+    current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
+    course_id: str, week: int = Query(le=12, ge=1),
+    assgn_type: AssignmentType = Query(description="the type of the assignment")
+):
+    course = db.course.find_one({"course_id": course_id})
+    if not course:
+        raise NotExistsError()
+    collection = db.coding_assignment
+    
+    results = collection.find({"course_id": course_id, "week": week,"assgn_type": assgn_type})
+    # results_1  = collection.find({"course_id": course_id, "assgn_type": 'PPA'})
+    
+    return [convert_to_serializable(result) for result in results] 
+# + [convert_to_serializable(result) for result in results_1]

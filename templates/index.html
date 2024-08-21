@@ -6,13 +6,32 @@
     <title>Ace Editor Integration</title>
     <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet"> <!-- Monospace Font -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" integrity="sha512-..." crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
+    <!-- Prism.js core CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.min.css" rel="stylesheet" />
+    
+    <!-- Prism.js core JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.min.js"></script>
+    
+    <!-- Prism.js language extensions -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-sql.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-bash.min.js"></script>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif; /* Professional sans-serif font */
             margin: 20px;
             padding: 0;
+            background-color: #f8f9fa; /* Light background color for the body */
+            color: #333; /* Default text color */
         }
 
         .editor-toolbar {
@@ -125,20 +144,40 @@
             flex-direction: column;
             align-items: stretch;
         }
-        
-        .editor-toolbar select,
-        .editor-toolbar button {
-            font-size: 14px;
-            font-weight: bold;
+
+        /* Markdown styling */
+        .markdown-content {
+            margin-top: 20px;
         }
 
-        .editor-toolbar button {
-            padding: 8px;
+        .markdown-content h1, .markdown-content h2, .markdown-content h3, .markdown-content h4, .markdown-content h5, .markdown-content h6 {
+            margin-top: 20px;
+            margin-bottom: 10px;
         }
-    </style>
+
+        .markdown-content p {
+            margin: 0 0 10px 0;
+        }
+
+        .markdown-content ul, .markdown-content ol {
+            margin: 0 0 10px 20px;
+        }
+
+        .markdown-content blockquote {
+            border-left: 4px solid #ddd;
+            padding-left: 10px;
+            margin: 0 0 10px 0;
+            color: #2b00ff;
+            font-style: italic;
+        }
+    </style>   
 </head>
 <body>
     <div class="container mt-4">
+        <h2>Markdown Renderer</h2>
+        <div class="markdown-content">
+            {{ content|safe }}
+        </div>
         <div class="editor-toolbar">
             <select id="mode-selector" class="form-control" onchange="changeMode()">
                 <option value="python">Python</option>
@@ -296,10 +335,10 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYxMDAxNzk3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjM4MjgwMzJ9.vQwaTzAgiTfw6vpeA70xO2zMVASoOeG-_r0bgMztgLI'
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMmYxMDAxNzk3QGRzLnN0dWR5LmlpdG0uYWMuaW4iLCJzY29wZXMiOlsidXNlciJdLCJleHAiOjE3MjQyNjAyMjl9.tQsclAL7pSjNrwXttU-lr3kDaASnq6icJKrcK6VDvTQ'
                 },
                 body: JSON.stringify({
-                    assgn_id: "66b399744d92ad99114660f9",
+                    assgn_id: "66c613fc25dbf5433434cea1",
                     code: editor.getValue()
                 })
             })
@@ -414,6 +453,11 @@
         // Toggle fullscreen
         expandButton.addEventListener('click', () => {
             document.body.classList.toggle('fullscreen');
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Prism.highlightAll(); // Ensure all code blocks are highlighted
         });
     </script>
 </body>
